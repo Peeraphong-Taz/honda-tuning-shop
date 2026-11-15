@@ -433,3 +433,4 @@ const ClipboardIcon = ({ size = 20 }) => (
     <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
   </svg>
 );
+

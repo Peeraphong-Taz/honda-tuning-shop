@@ -9,38 +9,34 @@ export const Profile = () => {
   const { user } = useAuth();
   const { orders: dbOrders, bookings: dbBookings } = useDatabase();
   const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'bookings'
-  const [orders, setOrders] = useState([]);
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState(() => 
+    (dbOrders || []).filter(o => !user?.id || o.userId === user?.id || o.userId === 'guest')
+  );
+  const [bookings, setBookings] = useState(() => 
+    (dbBookings || []).filter(b => !user?.id || b.userId === user?.id || b.userId === 'guest')
+  );
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    // Sync immediately from local db
+    setOrders((dbOrders || []).filter(o => !user?.id || o.userId === user?.id || o.userId === 'guest'));
+    setBookings((dbBookings || []).filter(b => !user?.id || b.userId === user?.id || b.userId === 'guest'));
+
+    // Background check backend API (non-blocking)
+    const syncBackend = async () => {
       try {
         const [ordersRes, bookingsRes] = await Promise.all([
           orderService.getMyOrders().catch(() => ({ data: [] })),
           bookingService.getMyBookings().catch(() => ({ data: [] }))
         ]);
-        const userOrders = ordersRes.data && ordersRes.data.length > 0
-          ? ordersRes.data
-          : (dbOrders || []).filter(o => !user?.id || o.userId === user?.id || o.userId === 'guest');
-        
-        const userBookings = bookingsRes.data && bookingsRes.data.length > 0
-          ? bookingsRes.data
-          : (dbBookings || []).filter(b => !user?.id || b.userId === user?.id || b.userId === 'guest');
-
-        setOrders(userOrders);
-        setBookings(userBookings);
+        if (ordersRes.data && ordersRes.data.length > 0) setOrders(ordersRes.data);
+        if (bookingsRes.data && bookingsRes.data.length > 0) setBookings(bookingsRes.data);
       } catch (err) {
-        console.error('Failed to load profile data:', err);
-        setOrders(dbOrders || []);
-        setBookings(dbBookings || []);
-      } finally {
-        setLoading(false);
+        // Backend offline is normal, keep local data
       }
     };
 
-    fetchData();
+    syncBackend();
   }, [user, dbOrders, dbBookings]);
 
   const getStatusBadge = (status) => {

@@ -12,10 +12,11 @@ export const ProductCard = ({ product }) => {
       {/* Product Image */}
       <div className="relative aspect-[4/3] bg-[#1F2430] overflow-hidden">
         <img
-          src={product.imageUrl || 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=600&q=80'}
+          src={product.imageUrl || 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=450&q=70'}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
+          decoding="async"
         />
         <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-semibold text-red-400 border border-red-500/30">
           {product.category}

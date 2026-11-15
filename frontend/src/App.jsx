@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { DatabaseProvider } from './context/DatabaseContext';
@@ -9,21 +9,27 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages
+// Core Pages (Eagerly loaded for instant first paint)
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
-import Checkout from './pages/Checkout';
 import Service from './pages/Service';
-import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
-// Admin & Mechanic Pages (Separated)
-import AdminDashboard from './pages/admin/Dashboard';
-import ManageProducts from './pages/admin/ManageProducts';
-import ManageBookings from './pages/admin/ManageBookings';
-import MechanicDashboard from './pages/mechanic/MechanicDashboard';
+// Heavy Pages (Lazy loaded on demand to speed up initial site load)
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Profile = lazy(() => import('./pages/Profile'));
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
+const ManageProducts = lazy(() => import('./pages/admin/ManageProducts'));
+const ManageBookings = lazy(() => import('./pages/admin/ManageBookings'));
+const MechanicDashboard = lazy(() => import('./pages/mechanic/MechanicDashboard'));
+
+const PageLoader = () => (
+  <div className="min-h-[50vh] flex items-center justify-center">
+    <div className="w-8 h-8 rounded-full border-2 border-red-600 border-t-transparent animate-spin" />
+  </div>
+);
 
 export const App = () => {
   return (
@@ -34,7 +40,8 @@ export const App = () => {
             <div className="min-h-screen flex flex-col bg-[#0F1115] text-slate-100 selection:bg-red-600 selection:text-white">
               <Navbar />
               <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
-                <Routes>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
                   {/* Public Routes */}
                   <Route path="/" element={<Home />} />
                   <Route path="/shop" element={<Shop />} />
@@ -106,7 +113,8 @@ export const App = () => {
                     }
                   />
                 </Routes>
-              </main>
+              </Suspense>
+            </main>
               <Footer />
             </div>
           </Router>

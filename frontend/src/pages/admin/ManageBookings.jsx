@@ -1,26 +1,29 @@
 import React, { useEffect, useState } from 'react';
+import { useDatabase } from '../../context/DatabaseContext';
 import bookingService from '../../services/bookingService';
 import { Calendar, Clock, Car, Phone, User, CheckCircle2 } from 'lucide-react';
 
 export const ManageBookings = () => {
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { bookings: dbBookings, updateBookingStatus } = useDatabase();
+  const [bookings, setBookings] = useState(() => dbBookings || []);
+  const [loading, setLoading] = useState(false);
 
   const fetchBookings = async () => {
-    setLoading(true);
     try {
       const res = await bookingService.getAllBookings();
-      if (res.data) setBookings(res.data);
+      if (res.data && res.data.length > 0) setBookings(res.data);
     } catch (err) {
-      console.error('Failed to load bookings:', err);
-    } finally {
-      setLoading(false);
+      // Backend offline fallback to local database
+      setBookings(dbBookings || []);
     }
   };
 
   useEffect(() => {
+    if (dbBookings && dbBookings.length > 0) {
+      setBookings(dbBookings);
+    }
     fetchBookings();
-  }, []);
+  }, [dbBookings]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {

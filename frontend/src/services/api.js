@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  timeout: 1200, // ป้องกันการค้างเมื่อ Backend ไม่ได้เปิด ให้ fail ทันทีใน 1.2 วินาที
   headers: {
     'Content-Type': 'application/json'
   }

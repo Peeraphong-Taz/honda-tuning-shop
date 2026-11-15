@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useDatabase } from '../../context/DatabaseContext';
 import productsService from '../../services/productsService';
 import { Plus, Trash2, Edit, Package, Check, X } from 'lucide-react';
 
 export const ManageProducts = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { products: dbProducts } = useDatabase();
+  const [products, setProducts] = useState(() => dbProducts || []);
+  const [loading, setLoading] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -18,20 +20,20 @@ export const ManageProducts = () => {
   });
 
   const fetchProducts = async () => {
-    setLoading(true);
     try {
       const res = await productsService.getProducts();
-      if (res.data) setProducts(res.data);
+      if (res.data && res.data.length > 0) setProducts(res.data);
     } catch (err) {
-      console.error('Failed to load products:', err);
-    } finally {
-      setLoading(false);
+      setProducts(dbProducts || []);
     }
   };
 
   useEffect(() => {
+    if (dbProducts && dbProducts.length > 0) {
+      setProducts(dbProducts);
+    }
     fetchProducts();
-  }, []);
+  }, [dbProducts]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('คุณแน่ใจว่าต้องการลบสินค้านี้?')) return;
