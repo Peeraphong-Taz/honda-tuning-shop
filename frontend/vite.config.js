@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    host: true, // อนุญาตให้เชื่อมต่อจากภายนอกและ ngrok ได้
+    host: true,
+    allowedHosts: true, // ปลดล็อกให้เข้าผ่าน ngrok ทุกโดเมนได้ทันที
   }
 });
