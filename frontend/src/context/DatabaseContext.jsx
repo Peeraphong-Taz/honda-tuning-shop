@@ -194,6 +194,18 @@ export const DatabaseProvider = ({ children }) => {
     return result;
   }, []);
 
+  const saveIntakeChecklist = useCallback((bookingId, checklistData) => {
+    const result = dbUpdate('bookings', bookingId, {
+      intakeChecklist: checklistData,
+      status: 'in_progress',
+      intakeAt: new Date().toISOString(),
+    });
+    if (!result.error) {
+      setBookings(dbSelect('bookings') || []);
+    }
+    return result;
+  }, []);
+
   // ===== PURCHASE CHECKLIST =====
   const toggleChecklistItem = useCallback((id) => {
     const all = dbSelect('purchase_checklist') || [];
@@ -337,6 +349,7 @@ export const DatabaseProvider = ({ children }) => {
     createBooking,
     updateBookingStatus,
     assignMechanic,
+    saveIntakeChecklist,
 
     // Purchase Checklist
     toggleChecklistItem,

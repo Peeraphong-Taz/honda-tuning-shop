@@ -1,15 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { useDatabase } from '../../context/DatabaseContext';
+import { CarIntakeModal } from '../../components/CarIntakeModal';
 import {
   Wrench, Calendar, Clock, CheckCircle, XCircle, User, Phone, Car,
   MessageCircle, ChevronDown, ChevronUp, AlertCircle, Clipboard, Star,
-  Zap
+  Zap, FileCheck, ShieldAlert
 } from 'lucide-react';
 
 export const MechanicDashboard = () => {
   const {
     bookings, mechanics, purchaseChecklist,
     updateBookingStatus, assignMechanic, toggleChecklistItem,
+    saveIntakeChecklist,
     SERVICE_TYPES,
   } = useDatabase();
 
@@ -19,6 +21,7 @@ export const MechanicDashboard = () => {
   const [contactMessage, setContactMessage] = useState('');
   const [sentMessages, setSentMessages] = useState([]);
   const [expandedBooking, setExpandedBooking] = useState(null);
+  const [activeIntakeBooking, setActiveIntakeBooking] = useState(null);
 
   const currentMechanic = mechanics.find(m => m.id === selectedMechanic);
 
@@ -247,12 +250,23 @@ export const MechanicDashboard = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
+                      {booking.intakeChecklist ? (
+                        <span className="hidden sm:inline-block text-[9px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30 font-semibold">
+                          ✓ ตรวจรับแล้ว
+                        </span>
+                      ) : (
+                        <span className="hidden sm:inline-block text-[9px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-semibold">
+                          ⚠ รอตรวจรับ
+                        </span>
+                      )}
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                         booking.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' :
-                        booking.status === 'assigned' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'
+                        booking.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400 animate-pulse' :
+                        booking.status === 'assigned' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-amber-500/20 text-amber-400'
                       }`}>
                         {booking.status === 'completed' ? '✅ เสร็จแล้ว' :
-                         booking.status === 'assigned' ? '🔧 กำลังทำ' : '⏳ รอ'}
+                         booking.status === 'in_progress' ? '🔧 กำลังทำ' :
+                         booking.status === 'assigned' ? '📋 รับงานแล้ว' : '⏳ รอ'}
                       </span>
                       {expandedBooking === booking.id
                         ? <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -286,6 +300,68 @@ export const MechanicDashboard = () => {
                           💬 {booking.note}
                         </div>
                       )}
+
+                      {/* Car Intake Checklist Section */}
+                      <div className="bg-[#0F1115] border border-[#2E3547] rounded-xl p-3.5 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                            <FileCheck className="w-4 h-4 text-blue-400" />
+                            ใบตรวจรับรถเข้าทำ (Car Intake Pre-Check)
+                          </span>
+                          {booking.intakeChecklist ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                              ✓ ตรวจรับรถแล้ว
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse">
+                              ⚠ ยังไม่ตรวจรับ
+                            </span>
+                          )}
+                        </div>
+
+                        {booking.intakeChecklist ? (
+                          <div className="text-[11px] text-slate-400 space-y-1 bg-[#161922] p-2.5 rounded-lg border border-[#2E3547]">
+                            <div className="flex justify-between">
+                              <span>ผู้ตรวจรับ: <strong className="text-slate-200">{booking.intakeChecklist.inspectedBy}</strong></span>
+                              <span>เลขไมล์: <strong className="text-slate-200">{booking.intakeChecklist.mileage || '-'} กม.</strong></span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>สภาพล้อแม็ก: <strong className={booking.intakeChecklist.wheelsClean ? "text-emerald-400" : "text-amber-400"}>
+                                {booking.intakeChecklist.wheelsClean ? "ปกติ ไม่มีรอย" : `มีรอย (${booking.intakeChecklist.scratchedWheels?.join(', ') || 'เดิม'})`}
+                              </strong></span>
+                              <span>ไฟเตือนหน้าปัด: <strong className={booking.intakeChecklist.noWarningLights ? "text-emerald-400" : "text-red-400"}>
+                                {booking.intakeChecklist.noWarningLights ? "ปกติ" : "มีไฟเตือน"}
+                              </strong></span>
+                            </div>
+                            {booking.intakeChecklist.notes && (
+                              <div className="pt-1 text-slate-300 italic border-t border-[#2E3547]">
+                                โน้ตช่าง: "{booking.intakeChecklist.notes}"
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-slate-400">
+                            ตรวจเช็กรอยตัวถัง ล้อแม็ก ไฟเตือนหน้าปัด และอะไหล่แต่งก่อนลงมือถอดประกอบ
+                          </p>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveIntakeBooking(booking);
+                          }}
+                          className={`w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
+                            booking.intakeChecklist
+                              ? 'bg-[#1F2430] hover:bg-[#2E3547] text-slate-200 border border-[#2E3547]'
+                              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/30'
+                          }`}
+                        >
+                          <FileCheck className="w-3.5 h-3.5" />
+                          {booking.intakeChecklist ? '🔍 ดู / แก้ไขใบตรวจรับรถ' : '📋 เปิดใบตรวจรับรถก่อนลงมือทำ'}
+                        </button>
+                      </div>
+
                       {booking.status !== 'completed' && (
                         <button
                           onClick={() => handleCompleteJob(booking.id)}
@@ -500,6 +576,19 @@ export const MechanicDashboard = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Car Intake & Inspection Modal */}
+      {activeIntakeBooking && (
+        <CarIntakeModal
+          booking={activeIntakeBooking}
+          mechanic={currentMechanic}
+          isOpen={Boolean(activeIntakeBooking)}
+          onClose={() => setActiveIntakeBooking(null)}
+          onSave={(bookingId, checklistData) => {
+            saveIntakeChecklist(bookingId, checklistData);
+          }}
+        />
       )}
     </div>
   );
