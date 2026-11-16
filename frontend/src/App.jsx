@@ -37,7 +37,7 @@ export const App = () => {
       <DatabaseProvider>
         <CartProvider>
           <Router>
-            <div className="min-h-screen flex flex-col bg-[#0F1115] text-slate-100 selection:bg-red-600 selection:text-white">
+            <div className="min-h-screen flex flex-col bg-[#0A0A0A] text-slate-100 selection:bg-red-600 selection:text-white">
               <Navbar />
               <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
                 <Suspense fallback={<PageLoader />}>

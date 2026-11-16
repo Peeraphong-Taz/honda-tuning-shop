@@ -98,12 +98,12 @@ export const MechanicDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#161922] to-[#15191f] border border-blue-500/20 rounded-2xl p-6">
+      <div className="bg-[#121212] border border-[#2A2A2A] border-l-2 border-l-blue-500 rounded-lg p-6">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex items-center gap-3">
             <Wrench className="w-7 h-7 text-blue-400" />
             <div>
-              <h1 className="text-2xl font-black text-white font-['Outfit']">
+              <h1 className="text-2xl font-bold tracking-tight text-white font-display">
                 แดชบอร์ดช่าง
               </h1>
               <p className="text-xs text-slate-400">
@@ -118,7 +118,7 @@ export const MechanicDashboard = () => {
             <select
               value={selectedMechanic}
               onChange={e => setSelectedMechanic(e.target.value)}
-              className="bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-blue-500 focus:outline-none"
+              className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-200 focus:border-blue-500 focus:outline-none"
             >
               {mechanics.map(m => (
                 <option key={m.id} value={m.id}>{m.avatar} {m.name} — {m.roleLabel}</option>
@@ -130,7 +130,7 @@ export const MechanicDashboard = () => {
 
       {/* Mechanic Profile Card */}
       {currentMechanic && (
-        <div className="bg-[#161922] border border-[#2E3547] rounded-xl p-5">
+        <div className="bg-[#121212] border border-[#2A2A2A] rounded-md p-5">
           <div className="flex flex-col md:flex-row gap-4 items-start">
             <div className="text-5xl">{currentMechanic.avatar}</div>
             <div className="flex-1">
@@ -148,7 +148,7 @@ export const MechanicDashboard = () => {
               <p className="text-xs text-slate-400 mb-3 max-w-xl">{currentMechanic.description}</p>
               <div className="flex flex-wrap gap-1.5">
                 {currentMechanic.specialties.map(s => (
-                  <span key={s} className="text-[10px] bg-[#1F2430] text-slate-300 px-2 py-0.5 rounded border border-[#2E3547]">
+                  <span key={s} className="text-[10px] bg-[#1A1A1A] text-slate-300 px-2 py-0.5 rounded border border-[#2A2A2A]">
                     {s}
                   </span>
                 ))}
@@ -163,21 +163,21 @@ export const MechanicDashboard = () => {
           </div>
 
           {/* Mechanic Stats */}
-          <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-[#2E3547]">
+          <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-[#2A2A2A]">
             <div className="text-center">
-              <div className="text-lg font-bold text-white font-['Outfit']">{mechStats.totalJobs}</div>
+              <div className="text-lg font-bold text-white font-display">{mechStats.totalJobs}</div>
               <div className="text-[10px] text-slate-400">งานทั้งหมด</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-bold text-blue-400 font-['Outfit']">{mechStats.inProgress}</div>
+              <div className="text-lg font-bold text-blue-400 font-display">{mechStats.inProgress}</div>
               <div className="text-[10px] text-slate-400">กำลังทำ</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-bold text-emerald-400 font-['Outfit']">{mechStats.completed}</div>
+              <div className="text-lg font-bold text-emerald-400 font-display">{mechStats.completed}</div>
               <div className="text-[10px] text-slate-400">เสร็จแล้ว</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-bold text-amber-400 font-['Outfit']">{mechStats.pending}</div>
+              <div className="text-lg font-bold text-amber-400 font-display">{mechStats.pending}</div>
               <div className="text-[10px] text-slate-400">งานรอรับ</div>
             </div>
           </div>
@@ -185,15 +185,15 @@ export const MechanicDashboard = () => {
       )}
 
       {/* Tab Navigation */}
-      <div className="flex overflow-x-auto gap-1 bg-[#161922] border border-[#2E3547] rounded-xl p-1.5 no-scrollbar">
+      <div className="flex overflow-x-auto gap-1 bg-[#121212] border border-[#2A2A2A] rounded-md p-1.5 no-scrollbar">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium whitespace-nowrap transition ${
               activeTab === tab.id
                 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-[#1F2430]'
+                : 'text-slate-400 hover:text-white hover:bg-[#1A1A1A]'
             }`}
           >
             <tab.icon className="w-3.5 h-3.5" />
@@ -203,7 +203,7 @@ export const MechanicDashboard = () => {
 
         <button
           onClick={() => setShowContactModal(true)}
-          className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition whitespace-nowrap"
+          className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition whitespace-nowrap"
         >
           <Phone className="w-3.5 h-3.5" />
           ติดต่อร้าน
@@ -219,7 +219,7 @@ export const MechanicDashboard = () => {
           </h3>
 
           {myBookings.length === 0 ? (
-            <div className="bg-[#161922] border border-[#2E3547] rounded-xl p-8 text-center">
+            <div className="bg-[#121212] border border-[#2A2A2A] rounded-md p-8 text-center">
               <Calendar className="w-12 h-12 text-slate-600 mx-auto mb-3" />
               <h4 className="text-sm font-bold text-white mb-1">ยังไม่มีงาน</h4>
               <p className="text-xs text-slate-400">ดูงานรอรับใน tab "งานรอรับ" เพื่อรับงาน</p>
@@ -229,8 +229,8 @@ export const MechanicDashboard = () => {
               {myBookings.map(booking => (
                 <div
                   key={booking.id}
-                  className={`bg-[#161922] border rounded-xl overflow-hidden transition ${
-                    booking.status === 'completed' ? 'border-emerald-500/30 opacity-60' : 'border-[#2E3547] hover:border-blue-500/30'
+                  className={`bg-[#121212] border rounded-md overflow-hidden transition ${
+                    booking.status === 'completed' ? 'border-emerald-500/30 opacity-60' : 'border-[#2A2A2A] hover:border-blue-500/30'
                   }`}
                 >
                   <div
@@ -276,7 +276,7 @@ export const MechanicDashboard = () => {
                   </div>
 
                   {expandedBooking === booking.id && (
-                    <div className="border-t border-[#2E3547] p-4 space-y-3 bg-[#1F2430]/30">
+                    <div className="border-t border-[#2A2A2A] p-4 space-y-3 bg-[#1A1A1A]/30">
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         <div className="flex items-center gap-2 text-slate-300">
                           <User className="w-3.5 h-3.5 text-slate-400" />
@@ -296,13 +296,13 @@ export const MechanicDashboard = () => {
                         </div>
                       </div>
                       {booking.note && (
-                        <div className="text-[11px] text-slate-400 bg-[#0F1115] rounded-lg p-3">
+                        <div className="text-[11px] text-slate-400 bg-[#0A0A0A] rounded-md p-3">
                           💬 {booking.note}
                         </div>
                       )}
 
                       {/* Car Intake Checklist Section */}
-                      <div className="bg-[#0F1115] border border-[#2E3547] rounded-xl p-3.5 space-y-2.5">
+                      <div className="bg-[#0A0A0A] border border-[#2A2A2A] rounded-md p-3.5 space-y-2.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                             <FileCheck className="w-4 h-4 text-blue-400" />
@@ -320,7 +320,7 @@ export const MechanicDashboard = () => {
                         </div>
 
                         {booking.intakeChecklist ? (
-                          <div className="text-[11px] text-slate-400 space-y-1 bg-[#161922] p-2.5 rounded-lg border border-[#2E3547]">
+                          <div className="text-[11px] text-slate-400 space-y-1 bg-[#121212] p-2.5 rounded-md border border-[#2A2A2A]">
                             <div className="flex justify-between">
                               <span>ผู้ตรวจรับ: <strong className="text-slate-200">{booking.intakeChecklist.inspectedBy}</strong></span>
                               <span>เลขไมล์: <strong className="text-slate-200">{booking.intakeChecklist.mileage || '-'} กม.</strong></span>
@@ -334,7 +334,7 @@ export const MechanicDashboard = () => {
                               </strong></span>
                             </div>
                             {booking.intakeChecklist.notes && (
-                              <div className="pt-1 text-slate-300 italic border-t border-[#2E3547]">
+                              <div className="pt-1 text-slate-300 italic border-t border-[#2A2A2A]">
                                 โน้ตช่าง: "{booking.intakeChecklist.notes}"
                               </div>
                             )}
@@ -351,9 +351,9 @@ export const MechanicDashboard = () => {
                             e.stopPropagation();
                             setActiveIntakeBooking(booking);
                           }}
-                          className={`w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
+                          className={`w-full py-2 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
                             booking.intakeChecklist
-                              ? 'bg-[#1F2430] hover:bg-[#2E3547] text-slate-200 border border-[#2E3547]'
+                              ? 'bg-[#1A1A1A] hover:bg-[#2A2A2A] text-slate-200 border border-[#2A2A2A]'
                               : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/30'
                           }`}
                         >
@@ -365,7 +365,7 @@ export const MechanicDashboard = () => {
                       {booking.status !== 'completed' && (
                         <button
                           onClick={() => handleCompleteJob(booking.id)}
-                          className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2"
+                          className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-semibold transition flex items-center justify-center gap-2"
                         >
                           <CheckCircle className="w-4 h-4" /> เสร็จสิ้นงาน
                         </button>
@@ -388,7 +388,7 @@ export const MechanicDashboard = () => {
           </h3>
 
           {pendingBookings.length === 0 ? (
-            <div className="bg-[#161922] border border-[#2E3547] rounded-xl p-8 text-center">
+            <div className="bg-[#121212] border border-[#2A2A2A] rounded-md p-8 text-center">
               <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
               <h4 className="text-sm font-bold text-white mb-1">ไม่มีงานรอ</h4>
               <p className="text-xs text-slate-400">งานทั้งหมดได้รับการมอบหมายเรียบร้อยแล้ว</p>
@@ -402,8 +402,8 @@ export const MechanicDashboard = () => {
                 return (
                   <div
                     key={booking.id}
-                    className={`bg-[#161922] border rounded-xl p-4 transition ${
-                      canHandle ? 'border-[#2E3547] hover:border-amber-500/30' : 'border-red-500/20 opacity-50'
+                    className={`bg-[#121212] border rounded-md p-4 transition ${
+                      canHandle ? 'border-[#2A2A2A] hover:border-amber-500/30' : 'border-red-500/20 opacity-50'
                     }`}
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -425,10 +425,10 @@ export const MechanicDashboard = () => {
                       <button
                         onClick={() => handleAcceptJob(booking.id)}
                         disabled={!canHandle}
-                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-1.5 flex-shrink-0 ${
+                        className={`px-4 py-2 rounded-md text-sm font-semibold transition flex items-center gap-1.5 flex-shrink-0 ${
                           canHandle
                             ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
-                            : 'bg-[#1F2430] text-slate-500 cursor-not-allowed'
+                            : 'bg-[#1A1A1A] text-slate-500 cursor-not-allowed'
                         }`}
                       >
                         <Zap className="w-3.5 h-3.5" />
@@ -452,18 +452,18 @@ export const MechanicDashboard = () => {
           </h3>
 
           {purchaseChecklist.length === 0 ? (
-            <div className="bg-[#161922] border border-[#2E3547] rounded-xl p-8 text-center">
+            <div className="bg-[#121212] border border-[#2A2A2A] rounded-md p-8 text-center">
               <CheckCircle className="w-12 h-12 text-slate-600 mx-auto mb-3" />
               <p className="text-xs text-slate-500">ยังไม่มีรายการติดตั้ง</p>
             </div>
           ) : (
-            <div className="bg-[#161922] border border-[#2E3547] rounded-xl overflow-hidden">
-              <div className="divide-y divide-[#2E3547]/50">
+            <div className="bg-[#121212] border border-[#2A2A2A] rounded-md overflow-hidden">
+              <div className="divide-y divide-[#2A2A2A]/50">
                 {purchaseChecklist.map(item => (
                   <div
                     key={item.id}
                     onClick={() => toggleChecklistItem(item.id)}
-                    className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[#1F2430]/50 transition ${
+                    className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[#1A1A1A]/50 transition ${
                       item.checked ? 'opacity-50' : ''
                     }`}
                   >
@@ -480,7 +480,7 @@ export const MechanicDashboard = () => {
                         {item.brand} · {item.category} · ×{item.quantity}
                       </span>
                     </div>
-                    <span className="text-[10px] text-red-400 font-bold font-['Outfit'] flex-shrink-0">
+                    <span className="text-[10px] text-red-400 font-bold font-display flex-shrink-0">
                       ฿{Number(item.price).toLocaleString()}
                     </span>
                   </div>
@@ -501,21 +501,21 @@ export const MechanicDashboard = () => {
             </h3>
             <button
               onClick={() => setShowContactModal(true)}
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition"
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-semibold transition"
             >
               + ส่งข้อความใหม่
             </button>
           </div>
 
           {sentMessages.length === 0 ? (
-            <div className="bg-[#161922] border border-[#2E3547] rounded-xl p-8 text-center">
+            <div className="bg-[#121212] border border-[#2A2A2A] rounded-md p-8 text-center">
               <MessageCircle className="w-12 h-12 text-slate-600 mx-auto mb-3" />
               <p className="text-xs text-slate-500">ยังไม่มีข้อความ — กดปุ่ม "ติดต่อร้าน" เพื่อส่งข้อความ</p>
             </div>
           ) : (
             <div className="space-y-2">
               {sentMessages.map(msg => (
-                <div key={msg.id} className="bg-[#161922] border border-[#2E3547] rounded-xl p-4">
+                <div key={msg.id} className="bg-[#121212] border border-[#2A2A2A] rounded-md p-4">
                   <div className="flex items-center gap-2 mb-1.5">
                     <span className="text-[11px] font-semibold text-blue-400">{msg.mechanic}</span>
                     <span className="text-[10px] text-slate-500">{msg.timestamp}</span>
@@ -531,13 +531,13 @@ export const MechanicDashboard = () => {
       {/* ===== CONTACT MODAL ===== */}
       {showContactModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#161922] border border-[#2E3547] rounded-2xl p-6 max-w-md w-full">
+          <div className="bg-[#121212] border border-[#2A2A2A] rounded-lg p-6 max-w-md w-full">
             <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
               <Phone className="w-5 h-5 text-emerald-400" />
               ติดต่อร้าน Honda Tuning
             </h3>
 
-            <div className="bg-[#1F2430] rounded-lg p-3 mb-4 space-y-1.5 text-xs">
+            <div className="bg-[#1A1A1A] rounded-md p-3 mb-4 space-y-1.5 text-xs">
               <div className="flex items-center gap-2 text-slate-300">
                 <Phone className="w-3.5 h-3.5 text-red-500" /> 02-888-9999 / 089-777-6655
               </div>
@@ -558,17 +558,17 @@ export const MechanicDashboard = () => {
                 onChange={e => setContactMessage(e.target.value)}
                 placeholder="พิมพ์ข้อความถึงร้าน..."
                 rows={3}
-                className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none mb-3"
+                className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none mb-3"
                 required
               />
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-sm transition">
+                <button type="submit" className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-semibold text-sm transition">
                   ส่งข้อความ
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowContactModal(false)}
-                  className="px-4 py-2.5 bg-[#1F2430] text-slate-300 rounded-lg text-sm hover:bg-[#2E3547] transition"
+                  className="px-4 py-2.5 bg-[#1A1A1A] text-slate-300 rounded-md text-sm hover:bg-[#2A2A2A] transition"
                 >
                   ปิด
                 </button>

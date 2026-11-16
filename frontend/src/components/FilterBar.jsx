@@ -31,7 +31,7 @@ export const FilterBar = ({
   onSelectCar
 }) => {
   return (
-    <div className="bg-[#161922] border border-[#2E3547] rounded-xl p-4 mb-8 space-y-4 shadow-lg">
+    <div className="bg-[#121212] border border-[#2A2A2A] rounded-md p-4 mb-8 space-y-4 shadow-lg">
       <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
         {/* Search Input */}
         <div className="relative w-full md:w-80">
@@ -41,7 +41,7 @@ export const FilterBar = ({
             placeholder="ค้นหาชื่อสินค้า, อะไหล่, รหัส..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 transition"
+            className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md pl-9 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 transition"
           />
         </div>
 
@@ -51,7 +51,7 @@ export const FilterBar = ({
           <select
             value={selectedCar}
             onChange={(e) => onSelectCar(e.target.value)}
-            className="w-full md:w-60 bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500 transition"
+            className="w-full md:w-60 bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500 transition"
           >
             {hondaModels.map((model) => (
               <option key={model} value={model === 'All Models' ? '' : model}>
@@ -69,10 +69,10 @@ export const FilterBar = ({
           <button
             key={cat}
             onClick={() => onSelectCategory(cat)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition ${
               activeCategory === cat
-                ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
-                : 'bg-[#1F2430] text-slate-300 hover:bg-[#2E3547]'
+                ? 'bg-red-600 text-white'
+                : 'bg-[#1A1A1A] text-slate-300 hover:bg-[#2A2A2A]'
             }`}
           >
             {cat === 'All' ? 'ทั้งหมด (All)' : cat}

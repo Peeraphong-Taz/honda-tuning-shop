@@ -1,31 +1,96 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 const AuthContext = createContext();
 
+const THAI_AUTH_ERRORS = {
+  'Invalid login credentials': 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+  'Email not confirmed': 'กรุณายืนยันอีเมลก่อน (เช็คกล่องจดหมายของคุณ)',
+  'User already registered': 'อีเมลนี้สมัครสมาชิกแล้ว',
+};
+
+const authError = (error) => new Error(THAI_AUTH_ERRORS[error.message] || error.message);
+
 /**
- * AuthProvider — Mock Authentication
- * ===================================
- * Uses localStorage for mock auth. When your friend connects Supabase,
- * replace with supabase.auth.signInWithPassword() etc.
+ * AuthProvider
+ * ============
+ * - Supabase mode: ใช้ Supabase Auth (อีเมล + รหัสผ่าน) และอ่าน role จากตาราง profiles
+ * - Demo mode (ยังไม่ตั้งค่า Supabase): ล็อกอินจำลองใน localStorage เหมือนเดิม
  */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Restore user from localStorage (mock session)
-    const storedUser = localStorage.getItem('honda_user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        localStorage.removeItem('honda_user');
-      }
-    }
-    setLoading(false);
+  // ดึง profile (ชื่อ + role) ของผู้ใช้ที่ล็อกอินอยู่
+  const loadProfile = useCallback(async (authUser) => {
+    if (!authUser) return null;
+    const { data } = await supabase
+      .from('profiles')
+      .select('name, email, phone, role')
+      .eq('id', authUser.id)
+      .maybeSingle();
+
+    return {
+      id: authUser.id,
+      email: authUser.email,
+      name: data?.name || authUser.user_metadata?.name || authUser.email?.split('@')[0],
+      phone: data?.phone || '',
+      carModel: authUser.user_metadata?.carModel || '',
+      role: data?.role || 'customer',
+    };
   }, []);
 
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      const storedUser = localStorage.getItem('honda_user');
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch {
+          localStorage.removeItem('honda_user');
+        }
+      }
+      setLoading(false);
+      return;
+    }
+
+    let active = true;
+
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const profile = await loadProfile(session?.user);
+      if (active) {
+        setUser(profile);
+        setLoading(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      // อย่า await ใน callback นี้ (คำแนะนำของ supabase-js) — โหลด profile แยกออกไป
+      setTimeout(async () => {
+        const profile = await loadProfile(session?.user);
+        if (active) setUser(profile);
+      }, 0);
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [loadProfile]);
+
   const login = async (credentials) => {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password,
+      });
+      if (error) throw authError(error);
+      const profile = await loadProfile(data.user);
+      setUser(profile);
+      return { success: true, user: profile };
+    }
+
+    // ===== Demo mode =====
     const email = credentials.email?.toLowerCase() || '';
     let role = 'customer';
     let name = credentials.email?.split('@')[0] || 'User';
@@ -38,20 +103,33 @@ export const AuthProvider = ({ children }) => {
       name = 'ช่างใหญ่ (Master Tuner)';
     }
 
-    const mockUser = {
-      id: `user-${Date.now()}`,
-      name: name,
-      email: credentials.email,
-      role: role,
-    };
+    const mockUser = { id: `user-${Date.now()}`, name, email: credentials.email, role };
     localStorage.setItem('honda_user', JSON.stringify(mockUser));
     setUser(mockUser);
     return { success: true, user: mockUser };
   };
 
   const register = async (userData) => {
-    // Mock registration
-    // Supabase: const { data, error } = await supabase.auth.signUp(userData)
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          data: { name: userData.name, carModel: userData.carModel },
+        },
+      });
+      if (error) throw authError(error);
+
+      // ถ้าเปิด "Confirm email" ใน Supabase จะยังไม่มี session จนกว่าจะกดยืนยันในอีเมล
+      if (!data.session) {
+        return { success: true, needsConfirmation: true };
+      }
+      const profile = await loadProfile(data.user);
+      setUser(profile);
+      return { success: true, user: profile };
+    }
+
+    // ===== Demo mode =====
     const mockUser = {
       id: `user-${Date.now()}`,
       name: userData.name || 'New User',
@@ -63,29 +141,13 @@ export const AuthProvider = ({ children }) => {
     return { success: true, user: mockUser };
   };
 
-  const logout = () => {
-    // Supabase: await supabase.auth.signOut()
-    localStorage.removeItem('honda_user');
+  const logout = async () => {
+    if (isSupabaseConfigured) {
+      await supabase.auth.signOut();
+    } else {
+      localStorage.removeItem('honda_user');
+    }
     setUser(null);
-  };
-
-  // Quick login helpers for demo
-  const loginAsAdmin = () => {
-    const adminUser = { id: 'admin-001', name: 'Admin', email: 'admin@honda.com', role: 'admin' };
-    localStorage.setItem('honda_user', JSON.stringify(adminUser));
-    setUser(adminUser);
-  };
-
-  const loginAsMechanic = () => {
-    const mechUser = { id: 'mech-001', name: 'ช่างใหญ่', email: 'mechanic@honda.com', role: 'mechanic' };
-    localStorage.setItem('honda_user', JSON.stringify(mechUser));
-    setUser(mechUser);
-  };
-
-  const loginAsCustomer = () => {
-    const custUser = { id: 'cust-001', name: 'ลูกค้าตัวอย่าง', email: 'customer@honda.com', role: 'customer' };
-    localStorage.setItem('honda_user', JSON.stringify(custUser));
-    setUser(custUser);
   };
 
   const isAdmin = user?.role === 'admin';
@@ -98,12 +160,10 @@ export const AuthProvider = ({ children }) => {
         loading,
         isAdmin,
         isMechanic,
+        isDemoAuth: !isSupabaseConfigured,
         login,
         register,
         logout,
-        loginAsAdmin,
-        loginAsMechanic,
-        loginAsCustomer,
       }}
     >
       {children}
