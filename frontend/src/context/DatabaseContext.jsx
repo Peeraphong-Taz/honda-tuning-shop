@@ -5,7 +5,6 @@ import {
   dbInsert,
   dbUpdate,
   dbDelete,
-  dbSetAll,
   generateId,
   MECHANICS,
   PRODUCT_CATEGORIES,
@@ -13,21 +12,24 @@ import {
   SERVICE_TYPES,
   TIME_SLOTS,
 } from '../data/mockDatabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { fromDb, fromDbList, toDb } from '../lib/mappers';
+import { useAuth } from './AuthContext';
 
 const DatabaseContext = createContext();
+
+const errMsg = (error) => (error ? error.message || String(error) : null);
 
 /**
  * DatabaseProvider
  * ================
- * Provides mock database operations that mimic Supabase API patterns.
- * When connecting to Supabase, replace the db* functions with actual
- * supabase.from('table').select/insert/update/delete calls.
+ * - ถ้าตั้งค่า Supabase แล้ว (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY) → อ่าน/เขียน Supabase จริง
+ * - ถ้ายังไม่ตั้งค่า → ใช้ฐานข้อมูลจำลองใน localStorage (โหมด demo)
  *
- * Example Supabase migration:
- *   Before: const products = dbSelect('products');
- *   After:  const { data: products } = await supabase.from('products').select('*');
+ * ทุกฟังก์ชันที่เขียนข้อมูลเป็น async และคืนค่า { data, error }
  */
 export const DatabaseProvider = ({ children }) => {
+  const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -35,28 +37,75 @@ export const DatabaseProvider = ({ children }) => {
   const [mechanics, setMechanics] = useState(MECHANICS);
   const [loading, setLoading] = useState(true);
 
-  // Initialize database on mount
-  useEffect(() => {
-    initializeDatabase();
-    refreshAll();
+  // ===== LOADERS =====
+  const loadProducts = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setProducts(dbSelect('products') || []);
+      return;
+    }
+    const { data, error } = await supabase.from('products').select('*').order('id');
+    if (error) console.error('[DB] load products:', error.message);
+    else setProducts(fromDbList(data));
   }, []);
 
-  // Refresh all data from localStorage
-  const refreshAll = useCallback(() => {
+  const loadOrders = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setOrders(dbSelect('orders') || []);
+      return;
+    }
+    if (!user) { setOrders([]); return; }
+    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (error) console.error('[DB] load orders:', error.message);
+    else setOrders(fromDbList(data));
+  }, [user]);
+
+  const loadBookings = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setBookings(dbSelect('bookings') || []);
+      return;
+    }
+    if (!user) { setBookings([]); return; }
+    const { data, error } = await supabase.from('bookings').select('*').order('date', { ascending: true });
+    if (error) console.error('[DB] load bookings:', error.message);
+    else setBookings(fromDbList(data));
+  }, [user]);
+
+  const loadChecklist = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setPurchaseChecklist(dbSelect('purchase_checklist') || []);
+      return;
+    }
+    if (!user) { setPurchaseChecklist([]); return; }
+    const { data, error } = await supabase.from('purchase_checklist').select('*').order('created_at');
+    if (error) console.error('[DB] load checklist:', error.message);
+    else setPurchaseChecklist(fromDbList(data));
+  }, [user]);
+
+  const loadMechanics = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setMechanics(dbSelect('mechanics') || MECHANICS);
+      return;
+    }
+    const { data, error } = await supabase.from('mechanics').select('*').order('id');
+    if (error) console.error('[DB] load mechanics:', error.message);
+    else if (data?.length) setMechanics(fromDbList(data));
+  }, []);
+
+  const refreshAll = useCallback(async () => {
     setLoading(true);
-    setProducts(dbSelect('products') || []);
-    setOrders(dbSelect('orders') || []);
-    setBookings(dbSelect('bookings') || []);
-    setPurchaseChecklist(dbSelect('purchase_checklist') || []);
-    setMechanics(dbSelect('mechanics') || MECHANICS);
+    await Promise.all([loadProducts(), loadOrders(), loadBookings(), loadChecklist(), loadMechanics()]);
     setLoading(false);
-  }, []);
+  }, [loadProducts, loadOrders, loadBookings, loadChecklist, loadMechanics]);
 
-  // ===== PRODUCTS CRUD =====
-  // Supabase: supabase.from('products').select('*')
+  // Initialize on mount + reload private data when the logged-in user changes
+  useEffect(() => {
+    if (!isSupabaseConfigured) initializeDatabase();
+    refreshAll();
+  }, [refreshAll]);
+
+  // ===== PRODUCTS =====
   const getProducts = useCallback((filters = {}) => {
-    let data = dbSelect('products') || [];
-
+    let data = products;
     if (filters.category && filters.category !== 'all') {
       data = data.filter(p => p.category === filters.category);
     }
@@ -74,68 +123,69 @@ export const DatabaseProvider = ({ children }) => {
     if (filters.status) {
       data = data.filter(p => p.status === filters.status);
     }
-
     return data;
-  }, []);
+  }, [products]);
 
-  // Supabase: supabase.from('products').select('*').eq('id', id).single()
-  const getProductById = useCallback((id) => {
-    const all = dbSelect('products') || [];
-    return all.find(p => p.id === id) || null;
-  }, []);
+  const getProductById = useCallback((id) => products.find(p => p.id === id) || null, [products]);
 
-  // Supabase: supabase.from('products').insert(productData)
-  const addProduct = useCallback((productData) => {
+  const addProduct = useCallback(async (productData) => {
     const newProduct = {
       ...productData,
       id: generateId('prod'),
-      createdAt: new Date().toISOString(),
       status: productData.status || 'active',
     };
-    const result = dbInsert('products', newProduct);
-    if (!result.error) {
-      setProducts(dbSelect('products') || []);
-    }
-    return result;
-  }, []);
 
-  // Supabase: supabase.from('products').update(updates).eq('id', id)
-  const updateProduct = useCallback((id, updates) => {
-    const result = dbUpdate('products', id, updates);
-    if (!result.error) {
-      setProducts(dbSelect('products') || []);
+    if (!isSupabaseConfigured) {
+      const result = dbInsert('products', { ...newProduct, createdAt: new Date().toISOString() });
+      if (!result.error) await loadProducts();
+      return result;
     }
-    return result;
-  }, []);
 
-  // Supabase: supabase.from('products').delete().eq('id', id)
-  const deleteProduct = useCallback((id) => {
-    const result = dbDelete('products', id);
-    if (!result.error) {
-      setProducts(dbSelect('products') || []);
+    const { data, error } = await supabase.from('products').insert(toDb('products', newProduct)).select().single();
+    if (!error) await loadProducts();
+    return { data: fromDb(data), error: errMsg(error) };
+  }, [loadProducts]);
+
+  const updateProduct = useCallback(async (id, updates) => {
+    if (!isSupabaseConfigured) {
+      const result = dbUpdate('products', id, updates);
+      if (!result.error) await loadProducts();
+      return result;
     }
-    return result;
-  }, []);
+    const { id: _ignore, ...rest } = updates;
+    const { data, error } = await supabase.from('products').update(toDb('products', rest)).eq('id', id).select().single();
+    if (!error) await loadProducts();
+    return { data: fromDb(data), error: errMsg(error) };
+  }, [loadProducts]);
+
+  const deleteProduct = useCallback(async (id) => {
+    if (!isSupabaseConfigured) {
+      const result = dbDelete('products', id);
+      if (!result.error) await loadProducts();
+      return result;
+    }
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (!error) await loadProducts();
+    return { data: { id }, error: errMsg(error) };
+  }, [loadProducts]);
 
   // ===== ORDERS =====
-  const createOrder = useCallback((orderData) => {
+  const createOrder = useCallback(async (orderData) => {
     const newOrder = {
       ...orderData,
       id: generateId('ord'),
       createdAt: new Date().toISOString(),
       status: 'pending',
     };
-    const result = dbInsert('orders', newOrder);
-    if (!result.error) {
-      setOrders(dbSelect('orders') || []);
 
-      // Also add items to purchase checklist
-      if (orderData.items) {
+    if (!isSupabaseConfigured) {
+      const result = dbInsert('orders', newOrder);
+      if (!result.error && orderData.items) {
         orderData.items.forEach(item => {
-          const checkItem = {
+          dbInsert('purchase_checklist', {
             id: generateId('chk'),
             orderId: newOrder.id,
-            productId: item.id,
+            productId: item.productId || item.id,
             productName: item.name,
             category: item.category,
             brand: item.brand,
@@ -145,179 +195,103 @@ export const DatabaseProvider = ({ children }) => {
             installedBy: null,
             installedAt: null,
             createdAt: new Date().toISOString(),
-          };
-          dbInsert('purchase_checklist', checkItem);
+          });
         });
-        setPurchaseChecklist(dbSelect('purchase_checklist') || []);
       }
+      await Promise.all([loadOrders(), loadChecklist()]);
+      return { data: newOrder, error: result.error };
     }
-    return result;
-  }, []);
 
-  const updateOrderStatus = useCallback((id, status) => {
-    const result = dbUpdate('orders', id, { status });
-    if (!result.error) {
-      setOrders(dbSelect('orders') || []);
+    // Supabase: ราคา/ยอดรวม และเช็คลิสต์ติดตั้ง คำนวณใหม่ฝั่ง DB ด้วย trigger
+    // ไม่ใช้ .select() เพราะลูกค้าที่ไม่ได้ล็อกอินไม่มีสิทธิ์อ่านออเดอร์กลับ
+    const row = toDb('orders', { ...newOrder, userId: user?.id || null });
+    const { error } = await supabase.from('orders').insert(row);
+    if (!error) await Promise.all([loadOrders(), loadChecklist()]);
+    return { data: error ? null : newOrder, error: errMsg(error) };
+  }, [user, loadOrders, loadChecklist]);
+
+  const updateOrderStatus = useCallback(async (id, status) => {
+    if (!isSupabaseConfigured) {
+      const result = dbUpdate('orders', id, { status });
+      if (!result.error) await loadOrders();
+      return result;
     }
-    return result;
-  }, []);
+    const { error } = await supabase.from('orders').update({ status }).eq('id', id);
+    if (!error) await loadOrders();
+    return { data: { id, status }, error: errMsg(error) };
+  }, [loadOrders]);
 
   // ===== BOOKINGS =====
-  // Supabase: supabase.from('bookings').insert(bookingData)
-  const createBooking = useCallback((bookingData) => {
+  const createBooking = useCallback(async (bookingData) => {
     const newBooking = {
       ...bookingData,
       id: generateId('bk'),
       createdAt: new Date().toISOString(),
       status: 'pending',
     };
-    const result = dbInsert('bookings', newBooking);
-    if (!result.error) {
-      setBookings(dbSelect('bookings') || []);
-    }
-    return result;
-  }, []);
 
-  const updateBookingStatus = useCallback((id, status) => {
-    const result = dbUpdate('bookings', id, { status });
-    if (!result.error) {
-      setBookings(dbSelect('bookings') || []);
+    if (!isSupabaseConfigured) {
+      const result = dbInsert('bookings', newBooking);
+      if (!result.error) await loadBookings();
+      return { data: newBooking, error: result.error };
     }
-    return result;
-  }, []);
 
-  const assignMechanic = useCallback((bookingId, mechanicId) => {
-    const result = dbUpdate('bookings', bookingId, { mechanicId, status: 'assigned' });
-    if (!result.error) {
-      setBookings(dbSelect('bookings') || []);
+    const row = toDb('bookings', { ...newBooking, userId: user?.id || null });
+    const { error } = await supabase.from('bookings').insert(row);
+    if (!error) await loadBookings();
+    return { data: error ? null : newBooking, error: errMsg(error) };
+  }, [user, loadBookings]);
+
+  const updateBooking = useCallback(async (id, updates) => {
+    if (!isSupabaseConfigured) {
+      const result = dbUpdate('bookings', id, updates);
+      if (!result.error) await loadBookings();
+      return result;
     }
-    return result;
-  }, []);
+    const { error } = await supabase.from('bookings').update(toDb('bookings', updates)).eq('id', id);
+    if (!error) await loadBookings();
+    return { data: { id, ...updates }, error: errMsg(error) };
+  }, [loadBookings]);
 
-  const saveIntakeChecklist = useCallback((bookingId, checklistData) => {
-    const result = dbUpdate('bookings', bookingId, {
+  const updateBookingStatus = useCallback((id, status) => updateBooking(id, { status }), [updateBooking]);
+
+  const assignMechanic = useCallback(
+    (bookingId, mechanicId) => updateBooking(bookingId, { mechanicId, status: 'assigned' }),
+    [updateBooking]
+  );
+
+  const saveIntakeChecklist = useCallback(
+    (bookingId, checklistData) => updateBooking(bookingId, {
       intakeChecklist: checklistData,
       status: 'in_progress',
       intakeAt: new Date().toISOString(),
-    });
-    if (!result.error) {
-      setBookings(dbSelect('bookings') || []);
-    }
-    return result;
-  }, []);
+    }),
+    [updateBooking]
+  );
 
   // ===== PURCHASE CHECKLIST =====
-  const toggleChecklistItem = useCallback((id) => {
-    const all = dbSelect('purchase_checklist') || [];
-    const item = all.find(i => i.id === id);
-    if (item) {
-      dbUpdate('purchase_checklist', id, {
-        checked: !item.checked,
-        installedAt: !item.checked ? new Date().toISOString() : null,
-      });
-      setPurchaseChecklist(dbSelect('purchase_checklist') || []);
+  const toggleChecklistItem = useCallback(async (id) => {
+    const item = purchaseChecklist.find(i => i.id === id);
+    if (!item) return { data: null, error: 'ไม่พบรายการ' };
+    const updates = {
+      checked: !item.checked,
+      installedAt: !item.checked ? new Date().toISOString() : null,
+    };
+
+    if (!isSupabaseConfigured) {
+      const result = dbUpdate('purchase_checklist', id, updates);
+      await loadChecklist();
+      return result;
     }
-  }, []);
+    const { error } = await supabase.from('purchase_checklist').update(toDb('purchase_checklist', updates)).eq('id', id);
+    if (!error) await loadChecklist();
+    return { data: { id, ...updates }, error: errMsg(error) };
+  }, [purchaseChecklist, loadChecklist]);
 
-  const getChecklistByOrder = useCallback((orderId) => {
-    const all = dbSelect('purchase_checklist') || [];
-    return all.filter(i => i.orderId === orderId);
-  }, []);
-
-  // ===== DATABASE COMMAND (SQL-like interface) =====
-  /**
-   * Execute a mock database command
-   * This simulates SQL-like commands for adding products to the database.
-   *
-   * Example commands:
-   *   INSERT product name="กันชนหน้า Type R" brand="Type R" category="bumper" price=15000
-   *   SELECT products WHERE category="bumper"
-   *   UPDATE product id="prod-001" stock=10
-   *   DELETE product id="prod-001"
-   */
-  const executeDbCommand = useCallback((command) => {
-    try {
-      const parts = command.trim().split(/\s+/);
-      const action = parts[0]?.toUpperCase();
-      const table = parts[1]?.toLowerCase();
-
-      if (action === 'INSERT' && (table === 'product' || table === 'products')) {
-        // Parse key=value pairs
-        const params = {};
-        const paramStr = command.substring(command.indexOf(table) + table.length).trim();
-        const matches = paramStr.match(/(\w+)=(?:"([^"]*)"|([\w.]+))/g);
-
-        if (matches) {
-          matches.forEach(match => {
-            const [key, ...valParts] = match.split('=');
-            let val = valParts.join('=').replace(/"/g, '');
-            // Try to parse as number
-            if (!isNaN(val) && val !== '') val = Number(val);
-            params[key] = val;
-          });
-        }
-
-        if (!params.name) {
-          return { success: false, message: 'Error: ต้องระบุชื่อสินค้า (name="...")' };
-        }
-
-        const result = addProduct({
-          name: params.name,
-          brand: params.brand || 'Unknown',
-          category: params.category || 'other',
-          price: params.price || 0,
-          description: params.description || '',
-          stock: params.stock || 0,
-          compatibleGens: params.gens ? params.gens.split(',') : ['gen8', 'gen9', 'gen10', 'gen11'],
-          compatibleModels: params.models ? params.models.split(',') : [],
-          imageUrl: params.image || '',
-        });
-
-        return {
-          success: !result.error,
-          message: result.error
-            ? `Error: ${result.error}`
-            : `✅ เพิ่มสินค้า "${params.name}" เข้า database สำเร็จ!`,
-          data: result.data,
-        };
-      }
-
-      if (action === 'SELECT' && (table === 'products' || table === 'product')) {
-        const data = getProducts();
-        return {
-          success: true,
-          message: `พบสินค้า ${data.length} รายการ`,
-          data,
-        };
-      }
-
-      if (action === 'DELETE' && (table === 'product' || table === 'products')) {
-        const idMatch = command.match(/id="([^"]+)"/);
-        if (idMatch) {
-          const result = deleteProduct(idMatch[1]);
-          return {
-            success: !result.error,
-            message: result.error ? `Error: ${result.error}` : `✅ ลบสินค้า ID "${idMatch[1]}" สำเร็จ`,
-          };
-        }
-        return { success: false, message: 'Error: ต้องระบุ id="..."' };
-      }
-
-      if (action === 'RESET' && table === 'database') {
-        localStorage.clear();
-        initializeDatabase();
-        refreshAll();
-        return { success: true, message: '✅ รีเซ็ต database กลับเป็นค่าเริ่มต้นสำเร็จ' };
-      }
-
-      return {
-        success: false,
-        message: `ไม่รู้จักคำสั่ง "${action}". คำสั่งที่ใช้ได้: INSERT, SELECT, DELETE, RESET`,
-      };
-    } catch (error) {
-      return { success: false, message: `Error: ${error.message}` };
-    }
-  }, [addProduct, deleteProduct, getProducts, refreshAll]);
+  const getChecklistByOrder = useCallback(
+    (orderId) => purchaseChecklist.filter(i => i.orderId === orderId),
+    [purchaseChecklist]
+  );
 
   const value = {
     // Data
@@ -327,6 +301,7 @@ export const DatabaseProvider = ({ children }) => {
     purchaseChecklist,
     mechanics,
     loading,
+    isSupabase: isSupabaseConfigured,
 
     // Constants
     PRODUCT_CATEGORIES,
@@ -354,9 +329,6 @@ export const DatabaseProvider = ({ children }) => {
     // Purchase Checklist
     toggleChecklistItem,
     getChecklistByOrder,
-
-    // DB Command
-    executeDbCommand,
 
     // Utilities
     refreshAll,

@@ -1,43 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useDatabase } from '../../context/DatabaseContext';
-import bookingService from '../../services/bookingService';
 import { Calendar, Clock, Car, Phone, User, CheckCircle2 } from 'lucide-react';
 
 export const ManageBookings = () => {
-  const { bookings: dbBookings, updateBookingStatus } = useDatabase();
-  const [bookings, setBookings] = useState(() => dbBookings || []);
-  const [loading, setLoading] = useState(false);
-
-  const fetchBookings = async () => {
-    try {
-      const res = await bookingService.getAllBookings();
-      if (res.data && res.data.length > 0) setBookings(res.data);
-    } catch (err) {
-      // Backend offline fallback to local database
-      setBookings(dbBookings || []);
-    }
-  };
-
-  useEffect(() => {
-    if (dbBookings && dbBookings.length > 0) {
-      setBookings(dbBookings);
-    }
-    fetchBookings();
-  }, [dbBookings]);
+  const { bookings, updateBookingStatus, loading } = useDatabase();
 
   const handleStatusChange = async (id, newStatus) => {
-    try {
-      await bookingService.updateStatus(id, newStatus);
-      setBookings(bookings.map(b => b._id === id ? { ...b, status: newStatus } : b));
-    } catch (err) {
-      alert('ไม่สามารถอัปเดตสถานะได้');
-    }
+    const { error } = await updateBookingStatus(id, newStatus);
+    if (error) alert(`ไม่สามารถอัปเดตสถานะได้: ${error}`);
   };
 
   return (
     <div className="space-y-6">
-      <div className="bg-[#161922] border border-[#2E3547] p-5 rounded-xl">
-        <h1 className="text-xl font-bold text-white flex items-center gap-2 font-['Outfit']">
+      <div className="bg-[#121212] border border-[#2A2A2A] p-5 rounded-md">
+        <h1 className="text-xl font-bold text-white flex items-center gap-2 font-display">
           <Calendar className="w-5 h-5 text-red-500" />
           จัดการคิวจองงานเซอร์วิส & ไดโน่ (Service Schedule)
         </h1>
@@ -46,9 +22,9 @@ export const ManageBookings = () => {
         </p>
       </div>
 
-      <div className="bg-[#161922] border border-[#2E3547] rounded-xl overflow-x-auto shadow-xl">
+      <div className="bg-[#121212] border border-[#2A2A2A] rounded-md overflow-x-auto shadow-xl">
         <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-[#1F2430] text-slate-400 uppercase font-semibold border-b border-[#2E3547]">
+          <thead className="bg-[#1A1A1A] text-slate-400 uppercase font-semibold border-b border-[#2A2A2A]">
             <tr>
               <th className="p-4">วัน & เวลา</th>
               <th className="p-4">บริการ</th>
@@ -57,7 +33,7 @@ export const ManageBookings = () => {
               <th className="p-4">สถานะคิว</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#2E3547]">
+          <tbody className="divide-y divide-[#2A2A2A]">
             {loading ? (
               <tr>
                 <td colSpan="5" className="p-8 text-center text-slate-500">กำลังโหลดรายการคิวจอง...</td>
@@ -68,7 +44,7 @@ export const ManageBookings = () => {
               </tr>
             ) : (
               bookings.map((booking) => (
-                <tr key={booking._id} className="hover:bg-[#1F2430]/40 transition">
+                <tr key={booking.id} className="hover:bg-[#1A1A1A]/40 transition">
                   <td className="p-4 whitespace-nowrap">
                     <span className="font-semibold text-white block">{booking.date}</span>
                     <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
@@ -93,7 +69,7 @@ export const ManageBookings = () => {
                   <td className="p-4">
                     <select
                       value={booking.status}
-                      onChange={(e) => handleStatusChange(booking._id, e.target.value)}
+                      onChange={(e) => handleStatusChange(booking.id, e.target.value)}
                       className={`text-xs px-2.5 py-1 rounded font-semibold border focus:outline-none transition ${
                         booking.status === 'confirmed'
                           ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
@@ -104,11 +80,11 @@ export const ManageBookings = () => {
                           : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
                       }`}
                     >
-                      <option value="pending" className="bg-[#161922] text-amber-400">pending (รอตรวจ)</option>
-                      <option value="confirmed" className="bg-[#161922] text-emerald-400">confirmed (ยืนยันแล้ว)</option>
-                      <option value="in_progress" className="bg-[#161922] text-yellow-400">in_progress (กำลังทำ)</option>
-                      <option value="completed" className="bg-[#161922] text-blue-400">completed (เสร็จสิ้น)</option>
-                      <option value="cancelled" className="bg-[#161922] text-rose-400">cancelled (ยกเลิก)</option>
+                      <option value="pending" className="bg-[#121212] text-amber-400">pending (รอตรวจ)</option>
+                      <option value="confirmed" className="bg-[#121212] text-emerald-400">confirmed (ยืนยันแล้ว)</option>
+                      <option value="in_progress" className="bg-[#121212] text-yellow-400">in_progress (กำลังทำ)</option>
+                      <option value="completed" className="bg-[#121212] text-blue-400">completed (เสร็จสิ้น)</option>
+                      <option value="cancelled" className="bg-[#121212] text-rose-400">cancelled (ยกเลิก)</option>
                     </select>
                   </td>
                 </tr>

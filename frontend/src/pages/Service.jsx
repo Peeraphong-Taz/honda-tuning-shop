@@ -1,63 +1,79 @@
 import React from 'react';
 import BookingForm from '../components/BookingForm';
-import { Gauge, Cpu, Disc, Wrench, Shield, CheckCircle } from 'lucide-react';
+
+const SERVICES = [
+  {
+    name: 'ECU Remap & Hondata Tune',
+    desc: 'จูนสเตจ 1 / สเตจ 2 ปลดล็อคความเร็ว ปรับบูสต์เทอร์โบและองศาไฟจุดระเบิด พร้อมวัดแรงม้าบนไดโน่',
+    price: 12000,
+  },
+  {
+    name: 'ติดตั้งสตรัทและเซ็ตช่วงล่าง',
+    desc: 'ปรับความสูง ค่า Bump & Rebound และตั้งศูนย์ถ่วงล้อ ทั้งสเปคใช้ถนนและลงแทร็ค',
+    price: 2500,
+  },
+  {
+    name: 'อัปเกรดเบรค Big Brake Kit',
+    desc: 'ติดตั้งคาลิปเปอร์ 4-Pot / 6-Pot จานเบรคสองชิ้น และไล่น้ำมันเบรคเกรดแข่ง',
+    price: 3500,
+  },
+];
 
 export const Service = () => {
   return (
-    <div className="space-y-12 max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto space-y-14">
       {/* Header */}
-      <div className="text-center space-y-3">
-        <span className="text-xs uppercase tracking-widest text-red-500 font-semibold">
-          Honda Performance Garage Services
-        </span>
-        <h1 className="text-3xl md:text-5xl font-black text-white font-['Outfit']">
-          บริการจูนนิ่ง & ติดตั้งครบวงจร
+      <div className="border-b border-[#2A2A2A] pb-6">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white font-display italic">
+          <span className="slash" />บริการจูนและติดตั้ง
         </h1>
-        <p className="text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed">
-          ดูแลรถฮอนด้าของคุณด้วยเครื่องมือมาตรฐานศูนย์แข่งขัน ห้องไดโน่ 4WD และช่างผู้ชำนาญการ VTEC & Turbo
+        <p className="text-sm text-slate-400 mt-2 max-w-2xl">
+          ห้องไดโน่ 4WD และช่างที่ทำรถ Honda VTEC และเทอร์โบโดยเฉพาะ
         </p>
       </div>
 
-      {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#161922] border border-[#2E3547] rounded-xl p-6 space-y-3 hover:border-red-500 transition">
-          <div className="w-10 h-10 rounded-lg bg-red-600/10 flex items-center justify-center text-red-500">
-            <Cpu className="w-5 h-5" />
-          </div>
-          <h3 className="font-bold text-white text-base">ECU Remap & Hondata Tune</h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            จูนสเตจ 1, สเตจ 2 ปลดล็อคความเร็ว ปรับบูสต์เทอร์โบ และองศาไฟจุดระเบิด พร้อมวัดแรงม้าบนไดโน่
-          </p>
-          <div className="text-xs font-semibold text-red-400 pt-1">เริ่มต้น ฿12,000</div>
-        </div>
+      {/* Price list */}
+      <section>
+        <h2 className="text-lg font-semibold text-white mb-2">ราคาเริ่มต้น</h2>
+        <ul className="divide-y divide-[#2A2A2A] border-y border-[#2A2A2A]">
+          {SERVICES.map(s => (
+            <li key={s.name} className="py-5 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-6">
+              <h3 className="md:col-span-4 text-base font-semibold text-white">{s.name}</h3>
+              <p className="md:col-span-6 text-sm text-slate-400 leading-relaxed">{s.desc}</p>
+              <p className="md:col-span-2 md:text-right text-base font-semibold text-white font-display">
+                ฿{s.price.toLocaleString()}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <p className="text-xs text-slate-500 mt-3">
+          ราคาจริงขึ้นอยู่กับรุ่นรถและอะไหล่ ช่างจะแจ้งราคาก่อนเริ่มงานทุกครั้ง
+        </p>
+      </section>
 
-        <div className="bg-[#161922] border border-[#2E3547] rounded-xl p-6 space-y-3 hover:border-red-500 transition">
-          <div className="w-10 h-10 rounded-lg bg-red-600/10 flex items-center justify-center text-red-500">
-            <Wrench className="w-5 h-5" />
+      {/* Booking */}
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <aside className="space-y-5 text-sm">
+          <div>
+            <h3 className="text-white font-semibold">เวลาทำการ</h3>
+            <p className="text-slate-400 mt-1">จันทร์ – เสาร์ 09:00 – 18:30 น.</p>
           </div>
-          <h3 className="font-bold text-white text-base">ติดตั้งสตรัท & เซ็ตช่วงล่าง</h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            ปรับระดับความสูง ค่า Bump & Rebound และตั้งศูนย์ถ่วงล้อสำหรับวิ่งถนนและแทร็คเซอร์กิต
-          </p>
-          <div className="text-xs font-semibold text-red-400 pt-1">เริ่มต้น ฿2,500</div>
-        </div>
-
-        <div className="bg-[#161922] border border-[#2E3547] rounded-xl p-6 space-y-3 hover:border-red-500 transition">
-          <div className="w-10 h-10 rounded-lg bg-red-600/10 flex items-center justify-center text-red-500">
-            <Disc className="w-5 h-5" />
+          <div>
+            <h3 className="text-white font-semibold">ที่ตั้งอู่</h3>
+            <p className="text-slate-400 mt-1">ถนนเกษตร-นวมินทร์ ลาดพร้าว กทม.</p>
           </div>
-          <h3 className="font-bold text-white text-base">อัปเกรดเบรค Big Brake Kit</h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            ติดตั้งชุดคาลิปเปอร์ 4-Pot / 6-Pot, จานเบรคขยายสองชิ้น และไล่น้ำมันเบรคเกรดแข่งขัน
+          <div>
+            <h3 className="text-white font-semibold">โทร</h3>
+            <p className="text-slate-400 mt-1">02-888-9999 / 089-777-6655</p>
+          </div>
+          <p className="text-slate-500 text-xs leading-relaxed pt-2 border-t border-[#2A2A2A]">
+            หลังส่งคำขอ ทางร้านจะโทรยืนยันคิวภายในวันทำการถัดไป
           </p>
-          <div className="text-xs font-semibold text-red-400 pt-1">เริ่มต้น ฿3,500</div>
+        </aside>
+        <div className="lg:col-span-2">
+          <BookingForm />
         </div>
-      </div>
-
-      {/* Booking Form Section */}
-      <div className="pt-6">
-        <BookingForm />
-      </div>
+      </section>
     </div>
   );
 };

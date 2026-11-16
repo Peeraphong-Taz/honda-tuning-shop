@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useDatabase } from '../context/DatabaseContext';
-import bookingService from '../services/bookingService';
-import { Calendar, Clock, Wrench, Car, Phone, User, CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 const serviceOptions = [
   'ECU Remap & Dyno',
@@ -47,19 +46,11 @@ export const BookingForm = ({ onSuccess }) => {
     setError('');
 
     try {
-      // 1. Save to mock/local database (instant sync with Mechanic & Admin Dashboard)
-      createBooking({
+      const { error: saveError } = await createBooking({
         ...formData,
         userId: user?.id || 'guest',
       });
-
-      // 2. Optionally notify backend if running
-      try {
-        await bookingService.createBooking(formData);
-      } catch (backendErr) {
-        // Backend offline is normal in mock mode
-        console.log('Saved to local DB (backend offline)');
-      }
+      if (saveError) throw new Error(saveError);
 
       setSuccess(true);
       if (onSuccess) onSuccess();
@@ -72,15 +63,15 @@ export const BookingForm = ({ onSuccess }) => {
 
   if (success) {
     return (
-      <div className="bg-[#161922] border border-emerald-500/40 rounded-xl p-8 text-center space-y-4">
-        <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto animate-bounce" />
+      <div className="border border-[#2A2A2A] rounded-md p-8 text-center space-y-4">
+        <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
         <h3 className="text-xl font-bold text-white">ส่งคำขอจองคิวเรียบร้อยแล้ว!</h3>
         <p className="text-slate-400 text-sm max-w-md mx-auto">
           เจ้าหน้าที่จะทำการตรวจสอบคิวและติดต่อยืนยันการจองผ่านเบอร์โทรศัพท์ของท่าน
         </p>
         <button
           onClick={() => setSuccess(false)}
-          className="mt-4 px-6 py-2 bg-[#1F2430] hover:bg-[#2E3547] text-white rounded-lg text-sm font-medium transition"
+          className="mt-4 px-6 py-2 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white rounded-md text-sm font-medium transition"
         >
           จองคิวเพิ่มอีก
         </button>
@@ -89,14 +80,13 @@ export const BookingForm = ({ onSuccess }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-[#161922] border border-[#2E3547] rounded-xl p-6 md:p-8 space-y-5 shadow-xl">
-      <h3 className="text-xl font-bold text-white flex items-center gap-2 border-b border-[#2E3547] pb-4">
-        <Wrench className="w-5 h-5 text-red-500" />
-        ฟอร์มจองคิวติดตั้งและจูนนิ่ง (Garage Appointment)
-      </h3>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <h2 className="text-2xl font-bold text-white font-display border-b border-[#2A2A2A] pb-4">
+        จองคิวเข้าอู่
+      </h2>
 
       {error && (
-        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm flex items-center gap-2">
+        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           {error}
         </div>
@@ -105,8 +95,7 @@ export const BookingForm = ({ onSuccess }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Customer Name */}
         <div>
-          <label className="text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5 text-slate-400" />
+          <label className="text-sm text-slate-300 mb-1.5 block">
             ชื่อ-นามสกุล ผู้ติดต่อ *
           </label>
           <input
@@ -116,14 +105,13 @@ export const BookingForm = ({ onSuccess }) => {
             value={formData.customerName}
             onChange={handleChange}
             placeholder="เช่น คุณธนภัทร"
-            className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
+            className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
           />
         </div>
 
         {/* Customer Phone */}
         <div>
-          <label className="text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5">
-            <Phone className="w-3.5 h-3.5 text-slate-400" />
+          <label className="text-sm text-slate-300 mb-1.5 block">
             เบอร์โทรศัพท์ติดต่อ *
           </label>
           <input
@@ -133,14 +121,13 @@ export const BookingForm = ({ onSuccess }) => {
             value={formData.customerPhone}
             onChange={handleChange}
             placeholder="08X-XXX-XXXX"
-            className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
+            className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
           />
         </div>
 
         {/* Car Model */}
         <div>
-          <label className="text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5">
-            <Car className="w-3.5 h-3.5 text-slate-400" />
+          <label className="text-sm text-slate-300 mb-1.5 block">
             รุ่นรถยนต์และเครื่องยนต์ *
           </label>
           <input
@@ -150,21 +137,20 @@ export const BookingForm = ({ onSuccess }) => {
             value={formData.carModel}
             onChange={handleChange}
             placeholder="เช่น Honda Civic FE 1.5 Turbo หรือ City Hatchback"
-            className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
+            className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
           />
         </div>
 
         {/* Service Type */}
         <div>
-          <label className="text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5">
-            <Wrench className="w-3.5 h-3.5 text-slate-400" />
+          <label className="text-sm text-slate-300 mb-1.5 block">
             บริการที่ต้องการ *
           </label>
           <select
             name="serviceType"
             value={formData.serviceType}
             onChange={handleChange}
-            className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
+            className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
           >
             {serviceOptions.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
@@ -174,8 +160,7 @@ export const BookingForm = ({ onSuccess }) => {
 
         {/* Date */}
         <div>
-          <label className="text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+          <label className="text-sm text-slate-300 mb-1.5 block">
             วันที่ต้องการเข้ารับบริการ *
           </label>
           <input
@@ -184,21 +169,20 @@ export const BookingForm = ({ onSuccess }) => {
             required
             value={formData.date}
             onChange={handleChange}
-            className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
+            className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
           />
         </div>
 
         {/* Time Slot */}
         <div>
-          <label className="text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-400" />
-            รอบเวลา (Time Slot) *
+          <label className="text-sm text-slate-300 mb-1.5 block">
+            รอบเวลา *
           </label>
           <select
             name="timeSlot"
             value={formData.timeSlot}
             onChange={handleChange}
-            className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
+            className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
           >
             {timeSlots.map((slot) => (
               <option key={slot} value={slot}>{slot}</option>
@@ -209,25 +193,25 @@ export const BookingForm = ({ onSuccess }) => {
 
       {/* Note */}
       <div>
-        <label className="text-xs font-medium text-slate-300 mb-1 block">
-          รายละเอียดเพิ่มเติม (เช่น สเปคอะไหล่ที่นำมาเอง หรือปัญหาที่ต้องการแก้ไข)
+        <label className="text-sm text-slate-300 mb-1.5 block">
+          รายละเอียดเพิ่มเติม
         </label>
         <textarea
           name="note"
           rows={3}
           value={formData.note}
           onChange={handleChange}
-          placeholder="ระบุความต้องการเพิ่มเติม..."
-          className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
+          placeholder="เช่น อะไหล่ที่นำมาเอง หรืออาการที่อยากให้ช่างดู"
+          className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"
         />
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 disabled:opacity-50"
+        className="btn-cut w-full md:w-auto md:px-10 py-3 bg-red-600 hover:bg-red-700 text-white font-display font-bold transition flex items-center justify-center gap-2 disabled:opacity-50"
       >
-        {loading ? 'กำลังส่งข้อมูล...' : 'ยืนยันการนัดหมายจองคิว'}
+        {loading ? 'กำลังส่ง...' : 'ส่งคำขอจองคิว'}
       </button>
     </form>
   );

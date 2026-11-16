@@ -1,8 +1,29 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { ShoppingBag, Wrench, Gauge, User as UserIcon, LogOut, Menu, X, ShieldCheck } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+
+const CartLink = ({ count }) => (
+  <Link to="/checkout" className="text-sm text-slate-200 hover:text-white transition-colors">
+    ตะกร้า{' '}
+    <span className={`font-display font-semibold ${count > 0 ? 'text-red-500' : 'text-slate-500'}`}>({count})</span>
+  </Link>
+);
+
+const NavItem = ({ to, end, children }) => (
+  <NavLink
+    to={to}
+    end={end}
+    className={({ isActive }) =>
+      `flex items-center border-b-2 transition-colors ${
+        isActive ? 'border-red-600 text-white' : 'border-transparent text-slate-400 hover:text-white'
+      }`
+    }
+  >
+    {children}
+  </NavLink>
+);
 
 export const Navbar = () => {
   const { user, isAdmin, isMechanic, logout } = useAuth();
@@ -16,100 +37,56 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#0F1115]/90 backdrop-blur-md border-b border-[#2E3547]">
+    <nav className="sticky top-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-md border-b border-[#2A2A2A]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center font-black text-xl text-white italic tracking-wider shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
-              H
-            </div>
-            <div>
-              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1 font-['Outfit']">
-                HONDA <span className="text-red-500 font-black">TUNING</span>
-              </span>
-              <span className="text-[10px] tracking-widest text-slate-400 uppercase block -mt-1">
-                Motorsport & Performance
-              </span>
-            </div>
+          <Link to="/" className="group leading-none" aria-label="Honda Tuning หน้าแรก">
+            <span className="font-display italic font-bold text-xl tracking-tight text-white">
+              HONDA<span className="text-red-600 mx-0.5">/</span>TUNING
+            </span>
+            <span className="block mt-1 h-[3px] w-full stripes opacity-80 group-hover:opacity-100 transition-opacity" />
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link to="/" className="text-slate-300 hover:text-white transition">หน้าแรก</Link>
-            <Link to="/shop" className="text-slate-300 hover:text-white transition">อะไหล่แต่ง (Shop)</Link>
-            <Link to="/service" className="text-slate-300 hover:text-white flex items-center gap-1.5 transition">
-              <Wrench className="w-4 h-4 text-red-500" />
-              จองคิวเซอร์วิส
-            </Link>
-
-            {isAdmin && (
-              <Link
-                to="/admin/dashboard"
-                className="text-amber-400 hover:text-amber-300 flex items-center gap-1 bg-amber-400/10 px-3 py-1 rounded-md border border-amber-400/20 text-xs font-semibold"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                แอดมิน (Admin)
-              </Link>
-            )}
-
-            {isMechanic && (
-              <Link
-                to="/mechanic/dashboard"
-                className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 bg-cyan-400/10 px-3 py-1 rounded-md border border-cyan-400/20 text-xs font-semibold"
-              >
-                <Wrench className="w-3.5 h-3.5" />
-                แดชบอร์ดช่าง (Mechanic)
-              </Link>
-            )}
+          <div className="hidden md:flex items-stretch self-stretch gap-7 text-sm">
+            <NavItem to="/" end>หน้าแรก</NavItem>
+            <NavItem to="/shop">อะไหล่แต่ง</NavItem>
+            <NavItem to="/service">จองคิวเซอร์วิส</NavItem>
+            {isAdmin && <NavItem to="/admin/dashboard">หลังร้าน</NavItem>}
+            {isMechanic && <NavItem to="/mechanic/dashboard">งานช่าง</NavItem>}
           </div>
-
-
 
           {/* Right Action Icons & Auth */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* Cart Icon */}
-            <Link
-              to="/checkout"
-              className="relative p-2 rounded-lg bg-[#1F2430] border border-[#2E3547] hover:border-red-500 text-slate-200 transition"
-              title="ตะกร้าสินค้า"
-            >
-              <ShoppingBag className="w-5 h-5 text-slate-200" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
+            <CartLink count={totalItems} />
 
             {user ? (
               <div className="flex items-center space-x-3">
                 <Link
                   to="/profile"
-                  className="flex items-center space-x-2 bg-[#1F2430] border border-[#2E3547] px-3 py-1.5 rounded-lg text-sm hover:border-slate-500 transition"
+                  className="text-sm text-slate-200 hover:text-white max-w-[140px] truncate transition-colors"
                 >
-                  <UserIcon className="w-4 h-4 text-red-500" />
-                  <span className="text-slate-200 font-medium max-w-[120px] truncate">{user.name}</span>
+                  {user.name}
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="p-2 text-slate-400 hover:text-red-400 transition"
-                  title="ออกจากระบบ"
+                  className="text-sm text-slate-500 hover:text-white transition-colors"
                 >
-                  <LogOut className="w-5 h-5" />
+                  ออกจากระบบ
                 </button>
               </div>
             ) : (
               <div className="flex items-center space-x-2">
                 <Link
                   to="/login"
-                  className="text-sm font-medium px-4 py-1.5 rounded-lg text-slate-200 hover:bg-[#1F2430] transition"
+                  className="text-sm font-medium px-4 py-1.5 rounded-md text-slate-200 hover:bg-[#1A1A1A] transition"
                 >
                   เข้าสู่ระบบ
                 </Link>
                 <Link
                   to="/register"
-                  className="text-sm font-semibold px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/25 transition"
+                  className="btn-cut text-sm font-display font-semibold px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white transition-colors"
                 >
                   สมัครสมาชิก
                 </Link>
@@ -119,17 +96,10 @@ export const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-3">
-            <Link to="/checkout" className="relative p-2 text-slate-200">
-              <ShoppingBag className="w-5 h-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
+            <CartLink count={totalItems} />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-[#1F2430] border border-[#2E3547] text-slate-200"
+              className="p-2 text-slate-200" aria-label="เมนู"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -139,7 +109,7 @@ export const Navbar = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#161922] border-b border-[#2E3547] px-4 pt-2 pb-6 space-y-3">
+        <div className="md:hidden bg-[#121212] border-b border-[#2A2A2A] px-4 pt-2 pb-6 space-y-3">
           <Link
             to="/"
             onClick={() => setMobileMenuOpen(false)}
@@ -167,10 +137,10 @@ export const Navbar = () => {
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 text-amber-400 font-semibold"
             >
-              แดชบอร์ดแอดมิน
+              หลังร้าน
             </Link>
           )}
-          <div className="pt-3 border-t border-[#2E3547]">
+          <div className="pt-3 border-t border-[#2A2A2A]">
             {user ? (
               <div className="space-y-2">
                 <Link
@@ -195,14 +165,14 @@ export const Navbar = () => {
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full text-center py-2 rounded-lg bg-[#1F2430] text-white"
+                  className="w-full text-center py-2 rounded-md bg-[#1A1A1A] text-white"
                 >
                   เข้าสู่ระบบ
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full text-center py-2 rounded-lg bg-red-600 text-white font-semibold"
+                  className="w-full text-center py-2 rounded-md bg-red-600 text-white font-semibold"
                 >
                   สมัครสมาชิก
                 </Link>

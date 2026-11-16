@@ -96,11 +96,11 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#161922] border border-[#2E3547] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-[#121212] border border-[#2A2A2A] rounded-lg w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="p-5 border-b border-[#2E3547] flex items-center justify-between bg-gradient-to-r from-blue-950/40 to-[#161922]">
+        <div className="p-5 border-b border-[#2A2A2A] flex items-center justify-between bg-[#121212]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-md bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold">
               <ClipboardIcon size={20} />
             </div>
             <div>
@@ -122,14 +122,14 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-[#1F2430] rounded-lg transition"
+            className="p-2 text-slate-400 hover:text-white hover:bg-[#1A1A1A] rounded-md transition"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Vehicle Quick Info Banner */}
-        <div className="bg-[#0F1115] px-6 py-3 border-b border-[#2E3547] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div className="bg-[#0A0A0A] px-6 py-3 border-b border-[#2A2A2A] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <div>
             <span className="text-slate-500 block text-[10px]">รุ่นรถยนต์:</span>
             <span className="text-white font-semibold flex items-center gap-1">
@@ -162,7 +162,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Quick Action Button */}
           {!isAlreadyInspected && (
-            <div className="flex justify-between items-center bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl">
+            <div className="flex justify-between items-center bg-blue-500/10 border border-blue-500/20 p-3 rounded-md">
               <div className="flex items-center gap-2 text-xs text-blue-300">
                 <Sparkles size={16} />
                 <span>หากตรวจแล้วรถสภาพสมบูรณ์ ของแต่งครบ ไม่มีรอยเดิม:</span>
@@ -170,7 +170,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
               <button
                 type="button"
                 onClick={handlePassAll}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow"
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold flex items-center gap-1.5 transition shadow"
               >
                 <Check size={14} />
                 ผ่านทั้งหมด (Pass All)
@@ -179,7 +179,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
           )}
 
           {/* Section 1: Body & Wheels */}
-          <div className="bg-[#1F2430]/60 border border-[#2E3547] rounded-xl p-4 space-y-4">
+          <div className="bg-[#1A1A1A]/60 border border-[#2A2A2A] rounded-md p-4 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
               <ShieldCheck size={15} className="text-red-500" />
               1. สภาพตัวถัง & ล้อแม็ก (Cosmetic Pre-Check)
@@ -187,7 +187,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
 
             <div className="space-y-3 text-xs">
               {/* Wheels */}
-              <div className="bg-[#0F1115] p-3 rounded-lg border border-[#2E3547]/80">
+              <div className="bg-[#0A0A0A] p-3 rounded-md border border-[#2A2A2A]/80">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-semibold text-slate-200">
                     สภาพล้อแม็ก 4 วง:
@@ -197,7 +197,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                       type="button"
                       onClick={() => setForm(p => ({ ...p, wheelsClean: true, scratchedWheels: [] }))}
                       className={`px-2.5 py-1 rounded text-[11px] font-semibold transition ${
-                        form.wheelsClean ? 'bg-emerald-600 text-white' : 'bg-[#161922] text-slate-400 hover:text-white'
+                        form.wheelsClean ? 'bg-emerald-600 text-white' : 'bg-[#121212] text-slate-400 hover:text-white'
                       }`}
                     >
                       ✓ ไม่มีรอย
@@ -206,7 +206,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                       type="button"
                       onClick={() => setForm(p => ({ ...p, wheelsClean: false }))}
                       className={`px-2.5 py-1 rounded text-[11px] font-semibold transition ${
-                        !form.wheelsClean ? 'bg-amber-600 text-white' : 'bg-[#161922] text-slate-400 hover:text-white'
+                        !form.wheelsClean ? 'bg-amber-600 text-white' : 'bg-[#121212] text-slate-400 hover:text-white'
                       }`}
                     >
                       ⚠ มีรอยเบียดเดิม
@@ -215,7 +215,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                 </div>
 
                 {!form.wheelsClean && (
-                  <div className="pt-2 border-t border-[#2E3547] flex items-center gap-2">
+                  <div className="pt-2 border-t border-[#2A2A2A] flex items-center gap-2">
                     <span className="text-[11px] text-amber-400">ระบุล้อที่มีรอย:</span>
                     {[
                       { id: 'FL', label: 'หน้าซ้าย' },
@@ -230,7 +230,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                         className={`px-2 py-0.5 rounded text-[10px] font-bold border transition ${
                           form.scratchedWheels.includes(w.id)
                             ? 'bg-red-500/20 border-red-500 text-red-300'
-                            : 'bg-[#161922] border-[#2E3547] text-slate-400'
+                            : 'bg-[#121212] border-[#2A2A2A] text-slate-400'
                         }`}
                       >
                         {w.label}
@@ -241,7 +241,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
               </div>
 
               {/* Front Lip / Skirt */}
-              <div className="flex items-center justify-between bg-[#0F1115] p-3 rounded-lg border border-[#2E3547]/80">
+              <div className="flex items-center justify-between bg-[#0A0A0A] p-3 rounded-md border border-[#2A2A2A]/80">
                 <span className="font-semibold text-slate-200">
                   สเกิร์ต & ลิ้นหน้า (รอยครูดใต้ท้อง/รอยแตกเดิม):
                 </span>
@@ -250,7 +250,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                     type="checkbox"
                     checked={form.bodyLipClean}
                     onChange={e => setForm(p => ({ ...p, bodyLipClean: e.target.checked }))}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#161922] border-slate-600"
+                    className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#121212] border-slate-600"
                   />
                   <span className={form.bodyLipClean ? 'text-emerald-400 font-medium' : 'text-amber-400 font-medium'}>
                     {form.bodyLipClean ? 'ปกติ ไม่มีรอยแตก' : '⚠ มีรอยครูดเดิม'}
@@ -259,7 +259,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
               </div>
 
               {/* Body Panels */}
-              <div className="flex items-center justify-between bg-[#0F1115] p-3 rounded-lg border border-[#2E3547]/80">
+              <div className="flex items-center justify-between bg-[#0A0A0A] p-3 rounded-md border border-[#2A2A2A]/80">
                 <span className="font-semibold text-slate-200">
                   สีตัวถังรอบจุดที่จะรื้อทำ (ซุ้มล้อ/กันชน):
                 </span>
@@ -268,7 +268,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                     type="checkbox"
                     checked={form.panelClean}
                     onChange={e => setForm(p => ({ ...p, panelClean: e.target.checked }))}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#161922] border-slate-600"
+                    className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#121212] border-slate-600"
                   />
                   <span className={form.panelClean ? 'text-emerald-400 font-medium' : 'text-amber-400 font-medium'}>
                     {form.panelClean ? 'ปกติ เรียบร้อยดี' : '⚠ มีรอยขีดข่วนเดิม'}
@@ -279,21 +279,21 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
           </div>
 
           {/* Section 2: Electrical & Cluster */}
-          <div className="bg-[#1F2430]/60 border border-[#2E3547] rounded-xl p-4 space-y-4">
+          <div className="bg-[#1A1A1A]/60 border border-[#2A2A2A] rounded-md p-4 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
               <Gauge size={15} className="text-blue-400" />
               2. หน้าปัดเรือนไมล์ & ระบบไฟฟ้า (Cluster & Mileage)
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="bg-[#0F1115] p-3 rounded-lg border border-[#2E3547]">
+              <div className="bg-[#0A0A0A] p-3 rounded-md border border-[#2A2A2A]">
                 <label className="block text-slate-400 mb-1 text-[11px]">ไฟเตือนหน้าปัด:</label>
                 <label className="flex items-center gap-2 cursor-pointer mt-1">
                   <input
                     type="checkbox"
                     checked={form.noWarningLights}
                     onChange={e => setForm(p => ({ ...p, noWarningLights: e.target.checked }))}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#161922] border-slate-600"
+                    className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#121212] border-slate-600"
                   />
                   <span className={form.noWarningLights ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold'}>
                     {form.noWarningLights ? '✓ ไม่มีไฟเตือนโชว์' : '⚠ มีไฟเตือนค้าง'}
@@ -301,23 +301,23 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                 </label>
               </div>
 
-              <div className="bg-[#0F1115] p-3 rounded-lg border border-[#2E3547]">
+              <div className="bg-[#0A0A0A] p-3 rounded-md border border-[#2A2A2A]">
                 <label className="block text-slate-400 mb-1 text-[11px]">เลขไมล์ปัจจุบัน (กม.):</label>
                 <input
                   type="text"
                   placeholder="เช่น 45,200"
                   value={form.mileage}
                   onChange={e => setForm(p => ({ ...p, mileage: e.target.value }))}
-                  className="w-full bg-[#161922] border border-[#2E3547] rounded px-2.5 py-1 text-white text-xs focus:outline-none focus:border-blue-500"
+                  className="w-full bg-[#121212] border border-[#2A2A2A] rounded px-2.5 py-1 text-white text-xs focus:outline-none focus:border-blue-500"
                 />
               </div>
 
-              <div className="bg-[#0F1115] p-3 rounded-lg border border-[#2E3547]">
+              <div className="bg-[#0A0A0A] p-3 rounded-md border border-[#2A2A2A]">
                 <label className="block text-slate-400 mb-1 text-[11px]">ระดับน้ำมันในถัง:</label>
                 <select
                   value={form.fuelLevel}
                   onChange={e => setForm(p => ({ ...p, fuelLevel: e.target.value }))}
-                  className="w-full bg-[#161922] border border-[#2E3547] rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500"
+                  className="w-full bg-[#121212] border border-[#2A2A2A] rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500"
                 >
                   <option value="1/4">1/4 ถัง</option>
                   <option value="1/2">1/2 ถัง</option>
@@ -329,14 +329,14 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
           </div>
 
           {/* Section 3: Tuning Parts Verification */}
-          <div className="bg-[#1F2430]/60 border border-[#2E3547] rounded-xl p-4 space-y-4">
+          <div className="bg-[#1A1A1A]/60 border border-[#2A2A2A] rounded-md p-4 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
               <Wrench size={15} className="text-emerald-400" />
               3. ตรวจเช็กอะไหล่แต่งก่อนลงมือรื้อ (Part & Fitment Verification)
             </h3>
 
             <div className="space-y-2.5 text-xs">
-              <label className="flex items-center justify-between bg-[#0F1115] p-3 rounded-lg border border-[#2E3547] cursor-pointer">
+              <label className="flex items-center justify-between bg-[#0A0A0A] p-3 rounded-md border border-[#2A2A2A] cursor-pointer">
                 <div>
                   <span className="font-semibold text-slate-200 block">อะไหล่แต่งตรงรุ่น 100%</span>
                   <span className="text-[10px] text-slate-500">เช็กโค้ดบนกล่องตรงกับรหัสตัวถัง/เครื่องยนต์ ไม่ผิดรุ่น</span>
@@ -345,11 +345,11 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                   type="checkbox"
                   checked={form.partModelMatch}
                   onChange={e => setForm(p => ({ ...p, partModelMatch: e.target.checked }))}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#161922] border-slate-600"
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#121212] border-slate-600"
                 />
               </label>
 
-              <label className="flex items-center justify-between bg-[#0F1115] p-3 rounded-lg border border-[#2E3547] cursor-pointer">
+              <label className="flex items-center justify-between bg-[#0A0A0A] p-3 rounded-md border border-[#2A2A2A] cursor-pointer">
                 <div>
                   <span className="font-semibold text-slate-200 block">อุปกรณ์และน็อตประกอบครบชุด</span>
                   <span className="text-[10px] text-slate-500">ปะเก็น, ขายึด, บูชยาง, น็อตยึด อยู่ในกล่องครบ</span>
@@ -358,11 +358,11 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                   type="checkbox"
                   checked={form.hardwareComplete}
                   onChange={e => setForm(p => ({ ...p, hardwareComplete: e.target.checked }))}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#161922] border-slate-600"
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#121212] border-slate-600"
                 />
               </label>
 
-              <label className="flex items-center justify-between bg-[#0F1115] p-3 rounded-lg border border-[#2E3547] cursor-pointer">
+              <label className="flex items-center justify-between bg-[#0A0A0A] p-3 rounded-md border border-[#2A2A2A] cursor-pointer">
                 <div>
                   <span className="font-semibold text-slate-200 block">ระยะเคลียร์แรนซ์ (Clearance Check)</span>
                   <span className="text-[10px] text-slate-500">เช็กเบื้องต้น: ไม่ติดก้านแม็ก, ไม่ติดซุ้ม, ไม่ติดกันชน</span>
@@ -371,14 +371,14 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                   type="checkbox"
                   checked={form.clearanceChecked}
                   onChange={e => setForm(p => ({ ...p, clearanceChecked: e.target.checked }))}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#161922] border-slate-600"
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-0 bg-[#121212] border-slate-600"
                 />
               </label>
             </div>
           </div>
 
           {/* Section 4: Notes */}
-          <div className="bg-[#1F2430]/60 border border-[#2E3547] rounded-xl p-4 space-y-3">
+          <div className="bg-[#1A1A1A]/60 border border-[#2A2A2A] rounded-md p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
                 <FileText size={15} className="text-amber-400" />
@@ -389,7 +389,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
                   type="checkbox"
                   checked={form.looseItemsRemoved}
                   onChange={e => setForm(p => ({ ...p, looseItemsRemoved: e.target.checked }))}
-                  className="w-3.5 h-3.5 rounded text-blue-600 bg-[#161922] border-slate-600"
+                  className="w-3.5 h-3.5 rounded text-blue-600 bg-[#121212] border-slate-600"
                 />
                 <span className="text-[11px]">นำของมีค่าออกจากรถแล้ว</span>
               </label>
@@ -400,12 +400,12 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
               value={form.notes}
               onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
               placeholder="ระบุข้อสังเกต เช่น: 'พบยางหุ้มเพลาขาด แจ้งลูกค้าแล้ว', 'ผ้าเบรกเดิมใกล้หมด แนะนำให้เปลี่ยนรอบหน้า'"
-              className="w-full bg-[#0F1115] border border-[#2E3547] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-md p-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
             />
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#2E3547]">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#2A2A2A]">
             <button
               type="button"
               onClick={onClose}
@@ -415,7 +415,7 @@ export const CarIntakeModal = ({ booking, mechanic, isOpen, onClose, onSave }) =
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-blue-600/30 transition"
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-md text-xs flex items-center gap-2 shadow-lg shadow-blue-600/30 transition"
             >
               <CheckCircle size={16} />
               {isAlreadyInspected ? 'บันทึกการแก้ไข' : 'ยืนยันการรับรถ ➔ เริ่มลงมือทำงาน'}
